@@ -12,17 +12,21 @@ export const validateCategory = async (req, res, next) => {
   const { error } = categorySchema.validate({ name });
 
   if (error) {
-    return res.status(400).send("name não pode ser vazio.");
+    return res
+      .status(400)
+      .send("Por favor, insira um name não vázio e válido.");
   }
 
   try {
-    const query = "SELECT * FROM categories WHERE name = $1;";
+    const query = "SELECT * FROM categories WHERE (name = $1);";
     const value = [name];
 
     const { rows } = await connection.query(query, value);
 
     if (rows.length > 0) {
-      return res.status(409).send("Essa categoria já existe.");
+      return res
+        .status(409)
+        .send("Por favor, insira outra categoria, essa categoria já existe.");
     }
   } catch (e) {
     console.error(e);
@@ -59,26 +63,30 @@ export const validateGame = async (req, res, next) => {
   }
 
   try {
-    const categorieSearch = await connection.query(
-      "SELECT * FROM categories WHERE (id = $1);",
-      [categoryId],
-    );
+    const queryOne = "SELECT * FROM categories WHERE (id = $1);";
+    const valueOne = [categoryId];
+
+    const categorieSearch = await connection.query(queryOne, valueOne);
 
     if (categorieSearch.rows.length === 0) {
       return res
         .status(400)
-        .send("Por favor, insira um id de categoria existente.");
+        .send(
+          "Por favor, insira um id de categoria existente, essa categoria não existe.",
+        );
     }
 
-    const nameSearch = await connection.query(
-      "SELECT id FROM games WHERE (name = $1);",
-      [name],
-    );
+    const queryTwo = "SELECT * FROM games WHERE (name = $1);";
+    const valueTwo = [name];
+
+    const nameSearch = await connection.query(queryTwo, valueTwo);
 
     if (nameSearch.rows.length > 0) {
       return res
         .status(409)
-        .send("Por favor, insira um nome de jogo diferente.");
+        .send(
+          "Por favor, insira um nome de jogo diferente, esse jogo já existe.",
+        );
     }
   } catch (e) {
     console.log(e);
