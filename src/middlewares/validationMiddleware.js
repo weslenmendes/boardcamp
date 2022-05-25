@@ -2,17 +2,31 @@ import Joi from "joi";
 
 import connection from "../config/database.js";
 
-export const validateCategorie = (req, res, next) => {
+export const validateCategory = async (req, res, next) => {
   const { name } = req.body;
 
-  const categorieSchema = Joi.object({
+  const categorySchema = Joi.object({
     name: Joi.string().required(),
   });
 
-  const { error } = categorieSchema.validate({ name });
+  const { error } = categorySchema.validate({ name });
 
   if (error) {
     return res.status(400).send("name não pode ser vazio.");
+  }
+
+  try {
+    const query = "SELECT * FROM categories WHERE name = $1;";
+    const value = [name];
+
+    const { rows } = await connection.query(query, value);
+
+    if (rows.length > 0) {
+      return res.status(409).send("Essa categoria já existe.");
+    }
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
   }
 
   next();

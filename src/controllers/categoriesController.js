@@ -2,7 +2,10 @@ import connection from "./../config/database.js";
 
 export async function listCategories(req, res) {
   try {
-    const { rows } = await connection.query("SELECT * FROM categories;");
+    const query = "SELECT * FROM categories;";
+
+    const { rows } = await connection.query(query);
+
     res.send(rows);
   } catch (e) {
     console.error(e);
@@ -10,22 +13,14 @@ export async function listCategories(req, res) {
   }
 }
 
-export async function createCategorie(req, res) {
+export async function createCategory(req, res) {
   const { name } = req.body;
 
   try {
-    const { rows } = await connection.query(
-      "SELECT * FROM categories WHERE name = $1;",
-      [name],
-    );
+    const query = "INSERT INTO categories (name) VALUES ($1);";
+    const value = [name];
 
-    if (rows.length > 0) {
-      return res.status(409).send("Essa categoria já existe.");
-    }
-
-    await connection.query("INSERT INTO categories (name) VALUES ($1);", [
-      name,
-    ]);
+    await connection.query(query, value);
 
     res.sendStatus(201);
   } catch (e) {
