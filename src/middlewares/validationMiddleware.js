@@ -88,6 +88,8 @@ export const validateGame = async (req, res, next) => {
           "Por favor, insira um nome de jogo diferente, esse jogo já existe.",
         );
     }
+
+    res.locals.categoryName = categorieSearch.rows[0].name;
   } catch (e) {
     console.log(e);
     res.sendStatus(500);
