@@ -6,18 +6,18 @@ export async function listGames(req, res) {
 
     const query = {
       text: `
-      SELECT 
-        g.*, 
-        c.name AS "categoryName" 
-      FROM 
-        games AS g
-      INNER JOIN 
-        categories AS c
-      ON 
-        (g."categoryId" = c.id)
-      WHERE
-        (g.name ~* $1);`,
-      values: [name ? name : ""],
+        SELECT 
+          g.*, 
+          c.name AS "categoryName" 
+        FROM 
+          games g
+        JOIN 
+          categories c
+        ON 
+          (g."categoryId" = c.id)
+        WHERE
+          (g.name ILIKE $1);`,
+      values: [`${name || ""}%`],
     };
 
     const { rows } = await connection.query(query);
@@ -35,10 +35,10 @@ export async function createGame(req, res) {
 
     const query = {
       text: `
-      INSERT INTO 
-        games(name, image, "stockTotal", "categoryId", "pricePerDay") 
-      VALUES 
-          ($1, $2, $3, $4, $5);`,
+        INSERT INTO 
+          games(name, image, "stockTotal", "categoryId", "pricePerDay") 
+        VALUES 
+            ($1, $2, $3, $4, $5);`,
       values: [name, image, stockTotal, categoryId, pricePerDay],
     };
 
