@@ -97,3 +97,72 @@ export const validateGame = async (req, res, next) => {
 
   next();
 };
+
+export const validateCustomer = async (req, res, next) => {
+  const { id } = req.params;
+  const { name, phone, cpf, birthday } = req.body;
+
+  const customerSchema = Joi.object({
+    name: Joi.string().required().messages({
+      "string.base": "Por favor, insira um nome não vazio e válido.",
+      "string.empty": "Por favor, insira um nome não vazio.",
+    }),
+    phone: Joi.string()
+      .pattern(/[0-9]{10,11}/)
+      .required()
+      .messages({
+        "string.pattern.base":
+          "Por favor, insira um telefone válido, deve ser uma string contendo apenas números, com 10 ou 11 dígitos.",
+      }),
+    cpf: Joi.string()
+      .pattern(/[0-9]{11}/)
+      .required()
+      .messages({
+        "string.empty": "Por favor, insira um cpf não vazio.",
+        "string.pattern.base":
+          "Por favor, insira um CPF válido, deve ser uma string com apenas números e com 11 dígitos.",
+      }),
+    birthday: Joi.date().required().messages({
+      "date.base":
+        "Por favor, insira uma string com uma data de nascimento válida.",
+    }),
+  });
+
+  const { error } = customerSchema.validate({ name, phone, cpf, birthday });
+
+  if (error) {
+    const allMessagesOfError = error.details
+      .map(({ message }) => message)
+      .join(", ");
+    return res.status(400).send(allMessagesOfError);
+  }
+
+  try {
+    const query = {
+      text: `
+        SELECT 
+          * 
+        FROM 
+          customers
+        WHERE
+          (cpf = $1);
+      `,
+      values: [cpf],
+    };
+
+    const { rows } = await connection.query(query);
+
+    const isCreateCustomer = rows.length === 0 && !id;
+    const isUpdateCustomer =
+      rows.length > 0 && id && parseInt(id) !== rows[0].id;
+
+    if (isCreateCustomer || isUpdateCustomer) {
+      return res.status(409).send("Por favor, insira outro cpf.");
+    }
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
+  }
+
+  next();
+};
