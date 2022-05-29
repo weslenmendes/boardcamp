@@ -152,7 +152,7 @@ export const validateCustomer = async (req, res, next) => {
 
     const { rows } = await connection.query(query);
 
-    const isCreateCustomer = rows.length === 0 && !id;
+    const isCreateCustomer = rows.length > 0 && !id;
     const isUpdateCustomer =
       rows.length > 0 && id && parseInt(id) !== rows[0].id;
 

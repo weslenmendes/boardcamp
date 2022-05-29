@@ -1,73 +1,84 @@
-import dayjs from "dayjs";
 import SQLString from "sqlstring";
+import dayjs from "dayjs";
 
 import connection from "./../config/database.js";
 
+import buildQuery from "./../utils/buildQuery.js";
+
 export async function listRentals(req, res) {
+  const { offset, limit, orderBy } = buildQuery(req.query);
+  const { customerId, gameId } = req.query;
+
+  const customerIdParsed = customerId && parseInt(customerId);
+  const gameIdParsed = gameId && parseInt(gameId);
+  const filters = [];
+
+  if (!isNaN(customerIdParsed)) {
+    filters.push(`rentals."customerId" = ${SQLString.escape(customerId)}`);
+  }
+
+  if (!isNaN(gameIdParsed)) {
+    filters.push(`rentals."gameId" = ${SQLString.escape(gameId)}`);
+  }
+
+  const where = filters.length > 0 ? `WHERE ${filters.join(" AND ")}` : "";
+
   try {
-    const { customerId, gameId } = req.query;
-
-    const filters = [];
-
-    if (customerId) {
-      filters.push(`rentals."customerId" = ${SQLString.escape(customerId)}`);
-    }
-
-    if (gameId) {
-      filters.push(`rentals."gameId" = ${SQLString.escape(gameId)}`);
-    }
-
-    const where = filters.length > 0 ? `WHERE ${filters.join(" AND ")}` : "";
-
     const query = `
       SELECT 
-        rentals.id AS "rentalId",
-        customers.name AS "customerName",
-        categories.name As "categoryName",
-        *
+        rentals.*, 
+        games.name AS "gameName", 
+        games."categoryId", 
+        customers.name AS "customerName", 
+        categories.name AS "categoryName"
       FROM 
         rentals
-      JOIN
-        customers
-      ON
-        rentals."customerId" = customers.id
-      JOIN
-        games
-      ON
+      JOIN 
+        games 
+      ON 
         rentals."gameId" = games.id
-      JOIN
-        categories
-      ON
+      JOIN 
+        categories 
+      ON 
         games."categoryId" = categories.id
+      JOIN 
+        customers 
+      ON 
+        rentals."customerId" = customers.id
       ${where}
-      ORDER BY
-        rentals.id;
+      ${orderBy}
+      ${offset}
+      ${limit};
     `;
 
     const { rows } = await connection.query(query);
 
-    const searchFormated = rows.map((result) => ({
-      id: result.rentalId,
-      customerId: result.customerId,
-      gameId: result.gameId,
-      rentDate: dayjs(result.rentDate).format("YYYY-MM-DD"),
-      daysRented: result.daysRented,
-      returnDate: result.returnDate
-        ? dayjs(result.returnDate).format("YYYY-MM-DD")
-        : null,
-      originalPrice: result.originalPrice,
-      delayFee: result.delayFee,
-      customer: {
-        id: result.customerId,
-        name: result.customerName,
-      },
-      game: {
-        id: result.gameId,
-        name: result.name,
-        categoryId: result.categoryId,
-        categoryName: result.categoryName,
-      },
-    }));
+    const searchFormated = rows.map((row) => {
+      const newRow = {
+        ...row,
+        rentDate: dayjs(row.rentDate).format("YYYY-MM-DD"),
+        returnDate: row.returnDate
+          ? dayjs(row.returnDate).format("YYYY-MM-DD")
+          : null,
+        customer: {
+          id: row.customerId,
+          name: row.customerName,
+        },
+        game: {
+          id: row.gameId,
+          name: row.gameName,
+          categoryId: row.categoryId,
+          categoryName: row.categoryName,
+        },
+      };
+
+      delete newRow.customerName;
+      delete newRow.gameName;
+      delete newRow.categoryId;
+      delete newRow.categoryName;
+
+      return newRow;
+    });
 
     res.send([...searchFormated]);
   } catch (e) {

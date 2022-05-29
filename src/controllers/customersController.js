@@ -1,9 +1,12 @@
 import connection from "../config/database.js";
 
-export async function listCustomers(req, res) {
-  try {
-    const { cpf } = req.query;
+import buildQuery from "../utils/buildQuery.js";
 
+export async function listCustomers(req, res) {
+  const { offset, limit, orderBy } = buildQuery(req.query);
+  const { cpf } = req.query;
+
+  try {
     const query = {
       text: `
         SELECT 
@@ -11,7 +14,10 @@ export async function listCustomers(req, res) {
         FROM 
           customers
         WHERE 
-          (cpf ILIKE $1);
+          (cpf ILIKE $1)
+        ${orderBy}
+        ${offset}
+        ${limit};
       `,
       values: [`${cpf || ""}%`],
     };

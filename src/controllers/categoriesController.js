@@ -1,8 +1,20 @@
 import connection from "./../config/database.js";
 
+import buildQuery from "./../utils/buildQuery.js";
+
 export async function listCategories(req, res) {
+  const { offset, limit, orderBy } = buildQuery(req.query);
+
   try {
-    const query = "SELECT * FROM categories;";
+    const query = `
+      SELECT
+        *
+      FROM
+        categories
+      ${orderBy}
+      ${offset}
+      ${limit};
+    `;
 
     const { rows } = await connection.query(query);
 

@@ -1,9 +1,12 @@
 import connection from "./../config/database.js";
 
-export async function listGames(req, res) {
-  try {
-    const { name } = req.query;
+import buildQuery from "./../utils/buildQuery.js";
 
+export async function listGames(req, res) {
+  const { offset, limit, orderBy } = buildQuery(req.query);
+  const { name } = req.query;
+
+  try {
     const query = {
       text: `
         SELECT 
@@ -16,7 +19,11 @@ export async function listGames(req, res) {
         ON 
           (g."categoryId" = c.id)
         WHERE
-          (g.name ILIKE $1);`,
+          (g.name ILIKE $1)
+        ${orderBy}
+        ${offset}
+        ${limit};  
+        `,
       values: [`${name || ""}%`],
     };
 
