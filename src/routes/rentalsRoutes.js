@@ -8,13 +8,14 @@ import {
 } from "./../controllers/rentalsController.js";
 import {
   validateRental,
+  validateQueryRental,
   validateReturnRental,
   validateDeleteRental,
 } from "./../middlewares/validationMiddleware.js";
 
 const rentalsRouter = Router();
 
-rentalsRouter.get("/", listRentals);
+rentalsRouter.get("/", validateQueryRental, listRentals);
 rentalsRouter.post("/", validateRental, createRental);
 rentalsRouter.post("/:id/return", validateReturnRental, returnRental);
 rentalsRouter.delete("/:id", validateDeleteRental, deleteRental);

@@ -237,6 +237,38 @@ export const validateRental = async (req, res, next) => {
   }
 };
 
+export const validateQueryRental = (req, res, next) => {
+  const querySchema = Joi.object({
+    customerId: Joi.number().integer(),
+    gameId: Joi.number().integer(),
+    status: Joi.string().valid("open", "closed"),
+    startDate: Joi.date().iso(),
+    offset: Joi.number().integer().min(0),
+    limit: Joi.number().integer().min(1),
+    order: Joi.string().valid(
+      "id",
+      "customerId",
+      "gameId",
+      "rentDate",
+      "returnDate",
+      "daysRented",
+      "originalPrice",
+    ),
+    desc: Joi.boolean(),
+  });
+
+  const { error } = querySchema.validate(req.query);
+
+  if (error) {
+    const allMessagesOfError = error.details
+      .map(({ message }) => message)
+      .join(", ");
+    return res.status(400).send(allMessagesOfError);
+  }
+
+  next();
+};
+
 export const validateReturnRental = async (req, res, next) => {
   try {
     const id = parseInt(req.params.id);
