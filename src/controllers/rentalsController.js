@@ -190,3 +190,47 @@ export async function deleteRental(req, res) {
     res.sendStatus(500);
   }
 }
+
+export async function rentalMetrics(req, res) {
+  const { startDate, endDate } = req.query;
+
+  const metrics = {
+    revenue: 0,
+    rentals: 0,
+    average: 0,
+  };
+
+  const filters = [];
+
+  if (startDate) {
+    filters.push(`rentals."rentDate" >= ${SQLString.escape(startDate)}`);
+  }
+
+  if (endDate) {
+    filters.push(`rentals."rentDate" <= ${SQLString.escape(endDate)}`);
+  }
+
+  const where = filters.length > 0 ? `WHERE ${filters.join(" AND ")}` : "";
+
+  try {
+    const query = `
+      SELECT
+        COUNT("id") AS "rentals",
+        SUM("originalPrice") + SUM("delayFee") AS "revenue"
+      FROM
+        rentals
+      ${where};    
+    `;
+
+    const { rows } = await connection.query(query);
+
+    metrics.revenue = parseInt(rows[0].revenue || 0);
+    metrics.rentals = parseInt(rows[0].rentals || 0);
+    metrics.average = metrics.revenue / metrics.rentals || 0;
+
+    res.send(metrics);
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
+}

@@ -269,6 +269,24 @@ export const validateQueryRental = (req, res, next) => {
   next();
 };
 
+export const validateQueryMetricsRental = (req, res, next) => {
+  const metricsQuerySchema = Joi.object({
+    startDate: Joi.date().iso(),
+    endDate: Joi.date().iso(),
+  });
+
+  const { error } = metricsQuerySchema.validate(req.query);
+
+  if (error) {
+    const allMessagesOfError = error.details
+      .map(({ message }) => message)
+      .join(", ");
+    return res.status(400).send(allMessagesOfError);
+  }
+
+  next();
+};
+
 export const validateReturnRental = async (req, res, next) => {
   try {
     const id = parseInt(req.params.id);
