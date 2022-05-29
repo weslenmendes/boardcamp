@@ -7,7 +7,7 @@ import buildQuery from "./../utils/buildQuery.js";
 
 export async function listRentals(req, res) {
   const { offset, limit, orderBy } = buildQuery(req.query);
-  const { customerId, gameId } = req.query;
+  const { customerId, gameId, status, startDate } = req.query;
 
   const customerIdParsed = customerId && parseInt(customerId);
   const gameIdParsed = gameId && parseInt(gameId);
@@ -19,6 +19,20 @@ export async function listRentals(req, res) {
 
   if (!isNaN(gameIdParsed)) {
     filters.push(`rentals."gameId" = ${SQLString.escape(gameId)}`);
+  }
+
+  if (status) {
+    if (status === "open") {
+      filters.push('rentals."returnDate" IS NULL');
+    }
+
+    if (status === "closed") {
+      filters.push('rentals."returnDate" IS NOT NULL');
+    }
+  }
+
+  if (startDate) {
+    filters.push(`rentals."rentDate" >= ${SQLString.escape(startDate)}`);
   }
 
   const where = filters.length > 0 ? `WHERE ${filters.join(" AND ")}` : "";
