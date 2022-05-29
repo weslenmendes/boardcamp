@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { listGames, createGame } from "./../controllers/gamesController.js";
-import { validateGame } from "../middlewares/validationMiddleware.js";
+import { validateGame } from "./../middlewares/gameMiddleware.js";
 
 const gamesRouter = Router();
 
