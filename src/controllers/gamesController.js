@@ -10,16 +10,23 @@ export async function listGames(req, res) {
     const query = {
       text: `
         SELECT 
-          g.*, 
-          c.name AS "categoryName" 
+          games.*, 
+          categories.name AS "categoryName",
+          COUNT (rentals.id) AS "rentalsCount"
         FROM 
-          games g
-        JOIN 
-          categories c
+          games
+        LEFT JOIN 
+          categories
         ON 
-          (g."categoryId" = c.id)
+          (games."categoryId" = categories.id)
+        LEFT JOIN
+          rentals
+        ON
+          (games.id = rentals."gameId")
         WHERE
-          (g.name ILIKE $1)
+          (games.name ILIKE $1)
+        GROUP BY
+          games.id, categories.name
         ${orderBy}
         ${offset}
         ${limit};  

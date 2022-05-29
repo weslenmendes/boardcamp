@@ -10,14 +10,21 @@ export async function listCustomers(req, res) {
     const query = {
       text: `
         SELECT 
-          *
+          customers.*,
+          COUNT (rentals.id) AS "rentalsCount"
         FROM 
           customers
+        LEFT JOIN
+          rentals
+        ON
+          rentals."customerId" = customers.id
         WHERE 
           (cpf ILIKE $1)
         ${orderBy}
         ${offset}
-        ${limit};
+        ${limit}
+        GROUP BY
+          customers.id;
       `,
       values: [`${cpf || ""}%`],
     };
