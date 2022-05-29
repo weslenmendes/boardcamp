@@ -28,12 +28,12 @@ export const validateCategory = async (req, res, next) => {
         .status(409)
         .send("Por favor, insira outra categoria, essa categoria já existe.");
     }
+
+    next();
   } catch (e) {
     console.error(e);
     res.sendStatus(500);
   }
-
-  next();
 };
 
 export const validateGame = async (req, res, next) => {
@@ -90,12 +90,12 @@ export const validateGame = async (req, res, next) => {
     }
 
     res.locals.categoryName = categorieSearch.rows[0].name;
+
+    next();
   } catch (e) {
     console.log(e);
     res.sendStatus(500);
   }
-
-  next();
 };
 
 export const validateCustomer = async (req, res, next) => {
@@ -159,12 +159,12 @@ export const validateCustomer = async (req, res, next) => {
     if (isCreateCustomer || isUpdateCustomer) {
       return res.status(409).send("Por favor, insira outro cpf.");
     }
+
+    next();
   } catch (e) {
     console.log(e);
     res.sendStatus(500);
   }
-
-  next();
 };
 
 export const validateRental = async (req, res, next) => {
