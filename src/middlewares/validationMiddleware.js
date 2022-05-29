@@ -2,12 +2,10 @@ import Joi from "joi";
 
 import connection from "../config/database.js";
 
+import { categorySchema } from "../schemas/categorySchema.js";
+
 export const validateCategory = async (req, res, next) => {
   const { name } = req.body;
-
-  const categorySchema = Joi.object({
-    name: Joi.string().required(),
-  });
 
   const { error } = categorySchema.validate({ name });
 

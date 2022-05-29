@@ -29,10 +29,17 @@ export async function createCategory(req, res) {
   const { name } = req.body;
 
   try {
-    const query = "INSERT INTO categories (name) VALUES ($1);";
-    const value = [name];
+    const query = {
+      text: `
+        INSERT INTO 
+          categories (name) 
+        VALUES 
+          ($1);
+      `,
+      values: [name],
+    };
 
-    await connection.query(query, value);
+    await connection.query(query);
 
     res.sendStatus(201);
   } catch (e) {
