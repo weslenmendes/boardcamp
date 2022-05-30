@@ -5,11 +5,14 @@ import {
   createCategory,
 } from "./../controllers/categoriesController.js";
 
-import { validateCategory } from "./../middlewares/categoryMiddleware.js";
+import {
+  validateBodyCategory,
+  validateQueryCategory,
+} from "./../middlewares/categoryMiddleware.js";
 
 const categoriesRouter = Router();
 
-categoriesRouter.get("/", listCategories);
-categoriesRouter.post("/", validateCategory, createCategory);
+categoriesRouter.get("/", validateQueryCategory, listCategories);
+categoriesRouter.post("/", validateBodyCategory, createCategory);
 
 export default categoriesRouter;

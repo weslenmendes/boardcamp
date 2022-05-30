@@ -1,11 +1,11 @@
 import connection from "../config/database.js";
 
-import { categorySchema } from "../schemas/categorySchema.js";
+import { categorySchema, querySchema } from "../schemas/categorySchema.js";
 
-export const validateCategory = async (req, res, next) => {
+export const validateBodyCategory = async (req, res, next) => {
   const { name } = req.body;
 
-  const { error } = categorySchema.validate({ name });
+  const { error } = categorySchema.validate({ name }, { abortEarly: false });
 
   if (error) {
     return res
@@ -39,4 +39,20 @@ export const validateCategory = async (req, res, next) => {
     console.error(e);
     res.sendStatus(500);
   }
+};
+
+export const validateQueryCategory = (req, res, next) => {
+  const { error } = querySchema.validate(req.query, {
+    abortEarly: false,
+  });
+
+  if (error) {
+    const allMessagesOfError = error.details
+      .map((err) => err.message)
+      .join(", ");
+
+    return res.status(400).json(allMessagesOfError);
+  }
+
+  next();
 };
