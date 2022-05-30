@@ -4,7 +4,7 @@ import {
   rentalsSchema,
   querySchema,
   metricsQuerySchema,
-} from "./../schemas/rentalSchema.js";
+} from "../schemas/rentalSchema.js";
 
 export const validateRental = async (req, res, next) => {
   const { customerId, gameId, daysRented } = req.body;
