@@ -7,3 +7,18 @@ export const gameSchema = Joi.object({
   categoryId: Joi.number().integer().required(),
   pricePerDay: Joi.number().integer().min(1).required(),
 });
+
+export const querySchema = Joi.object({
+  offset: Joi.number().integer().min(0),
+  limit: Joi.number().integer().min(1),
+  order: Joi.string().valid(
+    "id",
+    "name",
+    "stockTotal",
+    "categoryId",
+    "pricePerday",
+    "categoryName",
+    "rentalsCount",
+  ),
+  desc: Joi.boolean(),
+});

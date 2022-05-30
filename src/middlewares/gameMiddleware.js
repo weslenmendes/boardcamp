@@ -1,17 +1,20 @@
 import connection from "./../config/database.js";
 
-import { gameSchema } from "./../schemas/gameSchema.js";
+import { gameSchema, querySchema } from "./../schemas/gameSchema.js";
 
-export const validateGame = async (req, res, next) => {
+export const validateBodyGame = async (req, res, next) => {
   const { name, image, stockTotal, categoryId, pricePerDay } = req.body;
 
-  const { error } = gameSchema.validate({
-    name,
-    image,
-    stockTotal,
-    categoryId,
-    pricePerDay,
-  });
+  const { error } = gameSchema.validate(
+    {
+      name,
+      image,
+      stockTotal,
+      categoryId,
+      pricePerDay,
+    },
+    { abortEarly: false },
+  );
 
   if (error) {
     const allMessagesOfError = error.details
@@ -72,4 +75,20 @@ export const validateGame = async (req, res, next) => {
     console.log(e);
     res.sendStatus(500);
   }
+};
+
+export const validateQueryGame = (req, res, next) => {
+  const { error } = querySchema.validate(req.query, {
+    abortEarly: false,
+  });
+
+  if (error) {
+    const allMessagesOfError = error.details
+      .map((err) => err.message)
+      .join(", ");
+
+    return res.status(400).json(allMessagesOfError);
+  }
+
+  next();
 };
