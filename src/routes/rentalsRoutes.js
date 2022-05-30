@@ -13,7 +13,7 @@ import {
   validateQueryMetricsRental,
   validateReturnRental,
   validateDeleteRental,
-} from "./../middlewares/validationMiddleware.js";
+} from "./../middlewares/rentalMiddleware.js";
 
 const rentalsRouter = Router();
 
