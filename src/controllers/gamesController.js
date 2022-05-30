@@ -12,7 +12,7 @@ export async function listGames(req, res) {
         SELECT 
           games.*, 
           categories.name AS "categoryName",
-          COUNT (rentals.id) AS "rentalsCount"
+          COUNT (rentals.id)::INTEGER AS "rentalsCount"
         FROM 
           games
         LEFT JOIN 
