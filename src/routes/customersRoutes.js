@@ -6,7 +6,7 @@ import {
   createCustomer,
   updateCustomer,
 } from "./../controllers/customersController.js";
-import { validateCustomer } from "../middlewares/validationMiddleware.js";
+import { validateCustomer } from "./../middlewares/customerMiddleware.js";
 
 const customersRouter = Router();
 
