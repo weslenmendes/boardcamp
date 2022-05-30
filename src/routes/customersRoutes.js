@@ -6,13 +6,16 @@ import {
   createCustomer,
   updateCustomer,
 } from "./../controllers/customersController.js";
-import { validateCustomer } from "./../middlewares/customerMiddleware.js";
+import {
+  validateBodyCustomer,
+  validateQueryCustomer,
+} from "./../middlewares/customerMiddleware.js";
 
 const customersRouter = Router();
 
-customersRouter.get("/", listCustomers);
+customersRouter.get("/", validateQueryCustomer, listCustomers);
 customersRouter.get("/:id", listCustomerById);
-customersRouter.post("/", validateCustomer, createCustomer);
-customersRouter.put("/:id", validateCustomer, updateCustomer);
+customersRouter.post("/", validateBodyCustomer, createCustomer);
+customersRouter.put("/:id", validateBodyCustomer, updateCustomer);
 
 export default customersRouter;

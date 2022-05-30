@@ -10,3 +10,17 @@ export const customerSchema = Joi.object({
     .required(),
   birthday: Joi.date().required(),
 });
+
+export const querySchema = Joi.object({
+  offset: Joi.number().integer().min(0),
+  limit: Joi.number().integer().min(1),
+  order: Joi.string().valid(
+    "id",
+    "name",
+    "phone",
+    "cpf",
+    "birthday",
+    "rentalsCount",
+  ),
+  desc: Joi.boolean(),
+});

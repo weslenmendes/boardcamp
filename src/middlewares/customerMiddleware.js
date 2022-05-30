@@ -1,8 +1,8 @@
 import connection from "./../config/database.js";
 
-import { customerSchema } from "./../schemas/customerSchema.js";
+import { customerSchema, querySchema } from "./../schemas/customerSchema.js";
 
-export const validateCustomer = async (req, res, next) => {
+export const validateBodyCustomer = async (req, res, next) => {
   const { id } = req.params;
   const { name, phone, cpf, birthday } = req.body;
 
@@ -43,4 +43,20 @@ export const validateCustomer = async (req, res, next) => {
     console.log(e);
     res.sendStatus(500);
   }
+};
+
+export const validateQueryCustomer = (req, res, next) => {
+  const { error } = querySchema.validate(req.query, {
+    abortEarly: false,
+  });
+
+  if (error) {
+    const allMessagesOfError = error.details
+      .map((err) => err.message)
+      .join(", ");
+
+    return res.status(400).json(allMessagesOfError);
+  }
+
+  next();
 };
