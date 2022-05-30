@@ -11,7 +11,8 @@ export async function listCustomers(req, res) {
       text: `
         SELECT 
           customers.*,
-          COUNT (rentals.id) AS "rentalsCount"
+          to_char(customers.birthday, 'YYYY-MM-DD') AS "birthday",
+          COUNT (rentals.id)::INTEGER AS "rentalsCount"
         FROM 
           customers
         LEFT JOIN
@@ -20,11 +21,11 @@ export async function listCustomers(req, res) {
           rentals."customerId" = customers.id
         WHERE 
           (cpf ILIKE $1)
-        ${orderBy}
-        ${offset}
-        ${limit}
         GROUP BY
-          customers.id;
+          customers.id
+        ${orderBy ? orderBy : "ORDER BY customers.id ASC"}
+        ${offset}
+        ${limit};
       `,
       values: [`${cpf || ""}%`],
     };
@@ -45,7 +46,8 @@ export async function listCustomerById(req, res) {
     const query = {
       text: `
         SELECT 
-          *
+          *,
+          to_char(birthday, 'YYYY-MM-DD') AS "birthday"
         FROM 
           customers
         WHERE 
