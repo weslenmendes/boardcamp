@@ -60,7 +60,7 @@ export async function listRentals(req, res) {
       ON 
         rentals."customerId" = customers.id
       ${where}
-      ${orderBy}
+      ${orderBy ? orderBy : "ORDER BY rentals.id ASC"}
       ${offset}
       ${limit};
     `;
