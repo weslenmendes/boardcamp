@@ -9,6 +9,7 @@ export const gameSchema = Joi.object({
 });
 
 export const querySchema = Joi.object({
+  name: Joi.string().allow(""),
   offset: Joi.number().integer().min(0),
   limit: Joi.number().integer().min(1),
   order: Joi.string().valid(

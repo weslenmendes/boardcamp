@@ -4,9 +4,8 @@ import { customerSchema, querySchema } from "./../schemas/customerSchema.js";
 
 export const validateBodyCustomer = async (req, res, next) => {
   const { id } = req.params;
-  const { name, phone, cpf, birthday } = req.body;
 
-  const { error } = customerSchema.validate({ name, phone, cpf, birthday });
+  const { error } = customerSchema.validate(req.body);
 
   if (error) {
     const allMessagesOfError = error.details
@@ -25,7 +24,7 @@ export const validateBodyCustomer = async (req, res, next) => {
         WHERE
           (cpf = $1);
       `,
-      values: [cpf],
+      values: [req.body.cpf],
     };
 
     const { rows } = await connection.query(query);
